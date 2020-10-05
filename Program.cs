@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using LinqToExcel;
 
 namespace ExcelDuplicateFinder
@@ -13,28 +12,30 @@ namespace ExcelDuplicateFinder
             if (args != null && args.Length > 0)
             {
                 string filePath = args[0];
+                int column = int.Parse(args[1]);
 
                 if (File.Exists(filePath))
                 {
                     var excel = new ExcelQueryFactory(filePath);
 
-                    var cols = excel.WorksheetNoHeader();
-
-                    var rows = cols.Select(x => x[0]).ToArray();
+                    var rows = excel.WorksheetNoHeader();
 
                     var dictionary = new Dictionary<string, int>();
 
                     foreach (var cell in rows)
                     {
-                        string text = cell.Cast<string>();
+                        string text = cell[column].Cast<string>();
 
-                        if (!dictionary.ContainsKey(text))
+                        if (!string.IsNullOrWhiteSpace(text))
                         {
-                            dictionary.Add(text, 1);
-                        }
-                        else
-                        {
-                            dictionary[text]++;
+                            if (!dictionary.ContainsKey(text))
+                            {
+                                dictionary.Add(text, 1);
+                            }
+                            else
+                            {
+                                dictionary[text]++;
+                            }
                         }
                     }
 
